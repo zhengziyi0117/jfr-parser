@@ -1,7 +1,9 @@
 package org.example;
 
+import jdk.jfr.ValueDescriptor;
 import jdk.jfr.consumer.RecordedEvent;
 import jdk.jfr.consumer.RecordedFrame;
+import jdk.jfr.consumer.RecordedThread;
 import jdk.jfr.consumer.RecordingFile;
 
 import java.nio.file.Path;
@@ -14,6 +16,7 @@ import java.util.Map;
 public class JFRAnalyzer {
 //    private static final String LINE_CONCAT = ":";
     private static final String METHOD_CONCAT = "::";
+    private static final String NATIVE = "Native";
 
     private final String fileName;
 
@@ -32,7 +35,11 @@ public class JFRAnalyzer {
             while (recordingFile.hasMoreEvents()) {
                 RecordedEvent event = recordingFile.readEvent();
                 if (JFREventType.EXECUTION_SAMPLE.getName().equals(event.getEventType().getName())) {
-                    parseExecutionSample(event);
+//                    if (event.getValue("sampledThread") instanceof RecordedThread thread){
+//                        if("main".equals(thread.getOSName())){
+                            parseExecutionSample(event);
+//                        }
+//                    }
                 }
             }
         } catch (Exception e) {
@@ -55,7 +62,9 @@ public class JFRAnalyzer {
     }
 
     private String getFrameName(RecordedFrame frame) {
-        return frame.getMethod().getType().getName() + METHOD_CONCAT + frame.getMethod().getName();
+        if(NATIVE.equals(frame.getType())) {
+            return frame.getMethod().getName();
+        } else return frame.getMethod().getType().getName() + METHOD_CONCAT + frame.getMethod().getName();
     }
 
     private int getId(String frameName) {
