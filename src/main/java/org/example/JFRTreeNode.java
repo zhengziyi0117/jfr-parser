@@ -1,22 +1,46 @@
 package org.example;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-public record JFRTreeNode(int frameId, int self, int value, Set<JFRTreeNode> children) {
-    public void merge(List<JFRTreeNode> nodes, Map<Integer, JFRTreeNode> index2node) {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class JFRTreeNode {
+    private int frameId;
+    private int self;
+    private int value;
+    private Set<JFRTreeNode> children;
+
+
+    public void merge(List<JFRTreeNode> nodes) {
         if (Objects.isNull(nodes) || nodes.isEmpty()) {
             return;
         }
         JFRTreeNode mergeNode = this;
+
         for (JFRTreeNode node : nodes) {
-            if (index2node.containsKey(node.frameId)) {
-                mergeNode = index2node.get(node.frameId);
-            } else {
-                mergeNode.children.add(node);
+            JFRTreeNode matchChild = null;
+            for (JFRTreeNode child : mergeNode.children) {
+                if (child.frameId == node.frameId) {
+                    matchChild = child;
+                    break;
+                }
             }
+            // 处理子节点
+            if (Objects.isNull(matchChild)) {
+                mergeNode.children.add(node);
+                matchChild = node;
+            } else {
+                matchChild.self++;
+                matchChild.value += node.value;
+            }
+            mergeNode = matchChild;
         }
     }
 }
