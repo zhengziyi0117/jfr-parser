@@ -1,4 +1,4 @@
-package org.example;
+package org.example.with_signature;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,9 +12,9 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class JFRTreeNode {
-    private int frameId;
+    private String frame;
     private int self;
-    private int value;
+    private double value;
     private Set<JFRTreeNode> children;
 
 
@@ -27,7 +27,7 @@ public class JFRTreeNode {
         for (JFRTreeNode node : nodes) {
             JFRTreeNode matchChild = null;
             for (JFRTreeNode child : mergeNode.children) {
-                if (child.frameId == node.frameId) {
+                if (child.frame.equals(node.frame)) {
                     matchChild = child;
                     break;
                 }
