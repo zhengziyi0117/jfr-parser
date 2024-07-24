@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -13,9 +14,9 @@ import java.util.Set;
 @AllArgsConstructor
 public class JFRTreeNode {
     private String frame;
-    private int self;
+    private Integer self;
     private double value;
-    private Set<JFRTreeNode> children;
+    private Map<String, JFRTreeNode> childrenMap; // frame 2 childNode
 
 
     public void merge(List<JFRTreeNode> nodes) {
@@ -25,16 +26,10 @@ public class JFRTreeNode {
         JFRTreeNode mergeNode = this;
 
         for (JFRTreeNode node : nodes) {
-            JFRTreeNode matchChild = null;
-            for (JFRTreeNode child : mergeNode.children) {
-                if (child.frame.equals(node.frame)) {
-                    matchChild = child;
-                    break;
-                }
-            }
+            JFRTreeNode matchChild = mergeNode.getChildrenMap().get(node.frame);
             // 处理子节点
             if (Objects.isNull(matchChild)) {
-                mergeNode.children.add(node);
+                mergeNode.getChildrenMap().put(node.frame, node);
                 matchChild = node;
             } else {
                 matchChild.self++;

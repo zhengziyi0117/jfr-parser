@@ -28,9 +28,9 @@ public class JFRAnalyzer {
     public Map<JFREventType, JFRTreeNode> parseRecords() {
         try (RecordingFile recordingFile = new RecordingFile(Path.of(fileName))) {
             Map<JFREventType, JFRTreeNode> map = new HashMap<>();
-            JFRTreeNode cpuAll = new JFRTreeNode(-1, 0, 0, new HashSet<>());
-            JFRTreeNode inTLABAll = new JFRTreeNode(-1, 0, 0, new HashSet<>());
-            JFRTreeNode outTLABAll = new JFRTreeNode(-1, 0, 0, new HashSet<>());
+            JFRTreeNode cpuAll = new JFRTreeNode(-1, 0, 0, new HashMap<>(2));
+            JFRTreeNode inTLABAll = new JFRTreeNode(-1, 0, 0, new HashMap<>(2));
+            JFRTreeNode outTLABAll = new JFRTreeNode(-1, 0, 0, new HashMap<>(2));
             while (recordingFile.hasMoreEvents()) {
                 RecordedEvent event = recordingFile.readEvent();
                 if (JFREventType.EXECUTION_SAMPLE.getName().equals(event.getEventType().getName())) {
@@ -56,7 +56,7 @@ public class JFRAnalyzer {
         for (RecordedFrame frame : frames) {
             String frameName = getFrameName(frame);
             int frameId = getId(frameName);
-            JFRTreeNode node = new JFRTreeNode(frameId, 1, 1, new HashSet<>());
+            JFRTreeNode node = new JFRTreeNode(frameId, 1, 1, new HashMap<>(2));
             nodes.add(node);
         }
         List<JFRTreeNode> reversedNodes = nodes.reversed();
@@ -71,7 +71,7 @@ public class JFRAnalyzer {
         for (RecordedFrame frame : frames) {
             String frameName = getFrameName(frame);
             int frameId = getId(frameName);
-            JFRTreeNode node = new JFRTreeNode(frameId, 1, allocationSize, new HashSet<>());
+            JFRTreeNode node = new JFRTreeNode(frameId, 1, allocationSize, new HashMap<>(2));
             nodes.add(node);
         }
         List<JFRTreeNode> reversedNodes = nodes.reversed();
@@ -86,7 +86,7 @@ public class JFRAnalyzer {
         for (RecordedFrame frame : frames) {
             String frameName = getFrameName(frame);
             int frameId = getId(frameName);
-            JFRTreeNode node = new JFRTreeNode(frameId, 1, allocationSize, new HashSet<>());
+            JFRTreeNode node = new JFRTreeNode(frameId, 1, allocationSize, new HashMap<>(2));
             nodes.add(node);
         }
         List<JFRTreeNode> reversedNodes = nodes.reversed();

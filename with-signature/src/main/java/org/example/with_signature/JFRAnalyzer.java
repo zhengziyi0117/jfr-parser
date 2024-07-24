@@ -25,14 +25,17 @@ public class JFRAnalyzer {
     public Map<JFREventType, JFRTreeNode> parseRecords() {
         try (RecordingFile recordingFile = new RecordingFile(Path.of(fileName))) {
             Map<JFREventType, JFRTreeNode> map = new HashMap<>();
-            JFRTreeNode cpuAll = new JFRTreeNode(ALL, 0, 0, new HashSet<>());
-            JFRTreeNode inTLABAll = new JFRTreeNode(ALL, 0, 0, new HashSet<>());
-            JFRTreeNode outTLABAll = new JFRTreeNode(ALL, 0, 0, new HashSet<>());
-
+            JFRTreeNode cpuAll = new JFRTreeNode(ALL, 0, 0, new HashMap<>());
+            JFRTreeNode inTLABAll = new JFRTreeNode(ALL, 0, 0, new HashMap<>());
+            JFRTreeNode outTLABAll = new JFRTreeNode(ALL, 0, 0, new HashMap<>());
+            int cc = 0;
+            int ci = 0;
+            int co = 0;
             while (recordingFile.hasMoreEvents()) {
                 RecordedEvent event = recordingFile.readEvent();
                 if (JFREventType.EXECUTION_SAMPLE.getName().equals(event.getEventType().getName())) {
-                    parseExecutionSample(cpuAll, event);
+                    System.out.println(event);
+//                    parseExecutionSample(cpuAll, event);
                 } else if (JFREventType.OBJECT_ALLOCATION_IN_NEW_TLAB.getName().equals(event.getEventType().getName())) {
                     parseObjectAllocationInNewTLAB(inTLABAll, event);
                 } else if (JFREventType.OBJECT_ALLOCATION_OUTSIDE_TLAB.getName().equals(event.getEventType().getName())) {
@@ -41,7 +44,7 @@ public class JFRAnalyzer {
             }
             map.put(JFREventType.EXECUTION_SAMPLE, cpuAll);
             map.put(JFREventType.OBJECT_ALLOCATION_IN_NEW_TLAB, inTLABAll);
-            map.put(JFREventType.OBJECT_ALLOCATION_OUTSIDE_TLAB, inTLABAll);
+            map.put(JFREventType.OBJECT_ALLOCATION_OUTSIDE_TLAB, outTLABAll);
             return map;
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -50,10 +53,10 @@ public class JFRAnalyzer {
 
     public void parseExecutionSample(JFRTreeNode all, RecordedEvent event) {
         List<RecordedFrame> frames = event.getStackTrace().getFrames();
-        List<JFRTreeNode> nodes = new ArrayList<>();
+        List<JFRTreeNode> nodes = new ArrayList<>(frames.size());
         for (RecordedFrame frame : frames) {
             String frameName = getFrameName(frame);
-            JFRTreeNode node = new JFRTreeNode(frameName, 1, 1, new HashSet<>());
+            JFRTreeNode node = new JFRTreeNode(frameName, 1, 1, new HashMap<>(2));
             nodes.add(node);
         }
         List<JFRTreeNode> reversedNodes = nodes.reversed();
@@ -67,7 +70,7 @@ public class JFRAnalyzer {
         List<JFRTreeNode> nodes = new ArrayList<>();
         for (RecordedFrame frame : frames) {
             String frameName = getFrameName(frame);
-            JFRTreeNode node = new JFRTreeNode(frameName, 1, allocationSize, new HashSet<>());
+            JFRTreeNode node = new JFRTreeNode(frameName, 1, allocationSize, new HashMap<>(2));
             nodes.add(node);
         }
         List<JFRTreeNode> reversedNodes = nodes.reversed();
@@ -81,7 +84,7 @@ public class JFRAnalyzer {
         List<JFRTreeNode> nodes = new ArrayList<>();
         for (RecordedFrame frame : frames) {
             String frameName = getFrameName(frame);
-            JFRTreeNode node = new JFRTreeNode(frameName, 1, allocationSize, new HashSet<>());
+            JFRTreeNode node = new JFRTreeNode(frameName, 1, allocationSize, new HashMap<>(2));
             nodes.add(node);
         }
         List<JFRTreeNode> reversedNodes = nodes.reversed();
@@ -89,9 +92,10 @@ public class JFRAnalyzer {
     }
 
     private String getFrameName(RecordedFrame frame) {
-        if (NATIVE.equals(frame.getType())) {
-            return frame.getMethod().getName();
-        }
-        return frame.getMethod().getType().getName() + METHOD_CONCAT + frame.getMethod().getName();
+//        if (NATIVE.equals(frame.getType())) {
+//            return frame.getMethod().getName();
+//        }
+//        return frame.getMethod().getType().getName() + METHOD_CONCAT + frame.getMethod().getName();
+        return frame.getMethod().getType().getName();
     }
 }
