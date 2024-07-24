@@ -407,11 +407,6 @@ public class FlameGraph implements Comparator<Frame> {
         }
     }
 
-    public FrameTree dumpRowTree() {
-        String[] keys = cpool.keys();
-        return FrameTree.buildTree(root, keys);
-    }
-
     @Override
     public int compare(Frame f1, Frame f2) {
         return order[f1.getTitleIndex()] - order[f2.getTitleIndex()];
