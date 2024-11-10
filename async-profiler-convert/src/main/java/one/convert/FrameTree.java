@@ -1,8 +1,12 @@
 package one.convert;
 
+import lombok.Data;
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Data
 public class FrameTree {
 
     private String frame;
