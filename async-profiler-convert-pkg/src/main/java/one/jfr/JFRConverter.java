@@ -17,9 +17,11 @@ import static parser.Frame.TYPE_CPP;
 import static parser.Frame.TYPE_KERNEL;
 import static parser.Frame.TYPE_NATIVE;
 import static parser.JFREventType.EXECUTION_SAMPLE;
+import static parser.JFREventType.JAVA_MONITOR_ENTER;
 import static parser.JFREventType.OBJECT_ALLOCATION_IN_NEW_TLAB;
 import static parser.JFREventType.OBJECT_ALLOCATION_OUTSIDE_TLAB;
 import static parser.JFREventType.PROFILER_LIVE_OBJECT;
+import static parser.JFREventType.THREAD_PARK;
 
 public abstract class JFRConverter extends Classifier {
 
@@ -54,11 +56,10 @@ public abstract class JFRConverter extends Classifier {
                 } else {
                     agg = event2aggMap.computeIfAbsent(OBJECT_ALLOCATION_OUTSIDE_TLAB, JFRConverter::getEventAggregator);
                 }
-            } else if (event instanceof ContendedLock lockSample) {
-                // todo can not assert lock type
-                throw new IllegalStateException("unsupported event : lock sample");
-//                agg = event2aggMap.computeIfAbsent(JAVA_MONITOR_ENTER, JFRConverter::getEventAggregator);
-//                agg = event2aggMap.computeIfAbsent(THREAD_PARK, JFRConverter::getEventAggregator);
+            } else if (event instanceof ContendedLock) {
+                // todo use one agg
+                agg = event2aggMap.computeIfAbsent(JAVA_MONITOR_ENTER, JFRConverter::getEventAggregator);
+                agg = event2aggMap.computeIfAbsent(THREAD_PARK, JFRConverter::getEventAggregator);
             } else if (event instanceof LiveObject) {
                 agg = event2aggMap.computeIfAbsent(PROFILER_LIVE_OBJECT, JFRConverter::getEventAggregator);
             }
@@ -74,30 +75,16 @@ public abstract class JFRConverter extends Classifier {
         // config aggregator
         switch (jfrEventType) {
             case EXECUTION_SAMPLE:
-                return new EventAggregator(false, true);
+                return new EventAggregator(true, false);
             case OBJECT_ALLOCATION_IN_NEW_TLAB:
             case OBJECT_ALLOCATION_OUTSIDE_TLAB:
-                return new EventAggregator(false, true);
-            case THREAD_PARK:
-                return new EventAggregator(true, true);
             case JAVA_MONITOR_ENTER:
             case PROFILER_LIVE_OBJECT:
-                return new EventAggregator(true, false);
+            case THREAD_PARK:
+                return new EventAggregator(true, true);
             default:
-                return new EventAggregator(false, false);
+                throw new IllegalStateException("EventAggregator is not support event type : " + jfrEventType);
         }
-    }
-
-    protected int toThreadState(String name) {
-        Map<Integer, String> threadStates = jfr.enums.get("jdk.types.ThreadState");
-        if (threadStates != null) {
-            for (Map.Entry<Integer, String> entry : threadStates.entrySet()) {
-                if (entry.getValue().startsWith(name, 6)) {
-                    return entry.getKey();
-                }
-            }
-        }
-        throw new IllegalArgumentException("Unknown thread state: " + name);
     }
 
     @Override
@@ -182,7 +169,7 @@ public abstract class JFRConverter extends Classifier {
             }
         }
 
-//        if (args.norm) {
+        // make signature normal
         for (int i = end - 2; i > start; i--) {
             if (symbol[i] == '/' || symbol[i] == '.') {
                 if (symbol[i + 1] >= '0' && symbol[i + 1] <= '9') {
@@ -196,16 +183,6 @@ public abstract class JFRConverter extends Classifier {
                 break;
             }
         }
-//        }
-
-//        if (args.simple) {
-//            for (int i = end - 2; i >= start; i--) {
-//                if (symbol[i] == '/' && (symbol[i + 1] < '0' || symbol[i + 1] > '9')) {
-//                    start = i + 1;
-//                    break;
-//                }
-//            }
-//        }
 
         String s = new String(symbol, start, end - start, StandardCharsets.UTF_8);
         return s.replace('/', '.');

@@ -44,7 +44,7 @@ public class JFRToFrameTree extends JFRConverter {
 
     private final Arguments args;
 
-    public JFRToFrameTree(JfrReader jfr,Arguments arguments) {
+    public JFRToFrameTree(JfrReader jfr, Arguments arguments) {
         super(jfr);
         this.args = arguments;
     }
@@ -60,7 +60,7 @@ public class JFRToFrameTree extends JFRConverter {
             agg.forEach(new EventAggregator.Visitor() {
                 final CallStack stack = new CallStack();
                 final double ticksToNanos = 1e9 / jfr.ticksPerSec;
-                final boolean scale = args.isTotal() && args.isLock() && ticksToNanos != 1.0;
+                final boolean scale = args.isTotal() && event.isLockSample() && ticksToNanos != 1.0;
 
                 @Override
                 public void visit(Event event, long value) {
@@ -84,6 +84,11 @@ public class JFRToFrameTree extends JFRConverter {
                                 methodName += ":" + location;
                             }
                             stack.push(methodName, types[i]);
+                        }
+                        if (event instanceof AllocationSample allocationSample) {
+                            if (allocationSample.classId != 0) {
+                                stack.push(getClassName(allocationSample.classId), ((AllocationSample) event).tlabSize == 0 ? TYPE_KERNEL : TYPE_INLINED);
+                            }
                         }
 
                         frameTreeBuilder.addSample(stack, scale ? (long) (value * ticksToNanos) : value);

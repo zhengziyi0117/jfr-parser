@@ -33,4 +33,8 @@ public enum JFREventType {
     PROFILER_LIVE_OBJECT(6);
 
     private final int code;
+
+    public boolean isLockSample() {
+        return JAVA_MONITOR_ENTER.equals(this) || THREAD_PARK.equals(this);
+    }
 }
