@@ -15,7 +15,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         Arguments arguments = new Arguments();
-        Map<JFREventType, FrameTree> map = JFRParser.dumpTree("/Users/ziyizheng/IdeaProjects/sb-demo/test.jfr", arguments);
+        Map<JFREventType, FrameTree> map = JFRParser.dumpTree("/home/zhengziyi/IdeaProjects/spring-demo/test.jfr", arguments);
         map.forEach((eventType, tree) -> {
             try (FileOutputStream fileOutputStream = new FileOutputStream(eventType.name() + ".json");) {
                 String json = GSON.toJson(tree);

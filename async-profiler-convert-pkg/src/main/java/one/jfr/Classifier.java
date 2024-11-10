@@ -6,6 +6,8 @@
 package one.jfr;
 
 
+import lombok.Getter;
+
 import static parser.Frame.TYPE_C1_COMPILED;
 import static parser.Frame.TYPE_CPP;
 import static parser.Frame.TYPE_INLINED;
@@ -15,7 +17,8 @@ import static parser.Frame.TYPE_NATIVE;
 
 public abstract class Classifier {
 
-    enum Category {
+    @Getter
+    public enum Category {
         GC("[gc]", TYPE_CPP),
         JIT("[jit]", TYPE_CPP),
         VM("[vm]", TYPE_CPP),
@@ -31,8 +34,8 @@ public abstract class Classifier {
         CLASS_VERIFY("[class_verify]", TYPE_CPP),
         LAMBDA_INIT("[lambda_init]", TYPE_CPP);
 
-        final String title;
-        final byte type;
+        private final String title;
+        private final byte type;
 
         Category(String title, byte type) {
             this.title = title;

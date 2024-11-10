@@ -21,6 +21,7 @@ package parser;
 
 import one.jfr.Arguments;
 import one.jfr.CallStack;
+import one.jfr.Classifier;
 import one.jfr.JFRConverter;
 import one.jfr.JfrReader;
 import one.jfr.StackTrace;
@@ -69,13 +70,13 @@ public class JFRToFrameTree extends JFRConverter {
                         byte[] types = stackTrace.types;
                         int[] locations = stackTrace.locations;
 
-//                        if (args.threads) {
-//                            stack.push(getThreadName(event.tid), TYPE_NATIVE);
-//                        }
-//                        if (args.classify) {
-//                            Category category = getCategory(stackTrace);
-//                            stack.push(category.title, category.type);
-//                        }
+                        if (args.isThreads()) {
+                            stack.push(getThreadName(event.tid), TYPE_NATIVE);
+                        }
+                        if (args.isClassify()) {
+                            Classifier.Category category = getCategory(stackTrace);
+                            stack.push(category.getTitle(), category.getType());
+                        }
                         for (int i = methods.length; --i >= 0; ) {
                             String methodName = getMethodName(methods[i], types[i]);
                             int location;
@@ -84,11 +85,6 @@ public class JFRToFrameTree extends JFRConverter {
                             }
                             stack.push(methodName, types[i]);
                         }
-//                        long classId = event.classId();
-//                        if (classId != 0) {
-//                            stack.push(getClassName(classId), (event instanceof AllocationSample)
-//                                    && ((AllocationSample) event).tlabSize == 0 ? TYPE_KERNEL : TYPE_INLINED);
-//                        }
 
                         frameTreeBuilder.addSample(stack, scale ? (long) (value * ticksToNanos) : value);
                         stack.clear();

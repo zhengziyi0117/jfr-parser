@@ -5,6 +5,7 @@ import one.convert.FrameTree;
 import one.convert.JfrParser;
 import one.jfr.event.JfrEventType;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -19,21 +20,15 @@ public class Main {
         Arguments arguments = new Arguments();
         arguments.state = "default,runnable,sleeping";
         arguments.lines = true;
-        try (InputStream inputStream = Files.newInputStream(Path.of("/home/zhengziyi/IdeaProjects/spring-demo/all.jfr"))){
-            byte[] bytes = inputStream.readAllBytes();
-            Map<JfrEventType, FrameTree> map = JfrParser.dumpTree(bytes, arguments);
-            map.forEach((k, v) -> {
-                String json = GSON.toJson(v);
-                try {
-                    Path path = Files.createFile(Path.of(k.name()+".json"));
-                    Files.write(path, json.getBytes());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        Map<JfrEventType, FrameTree> map = JfrParser.dumpTree("/home/zhengziyi/IdeaProjects/spring-demo/test.jfr", arguments);
+        map.forEach((eventType, tree) -> {
+            try (FileOutputStream fileOutputStream = new FileOutputStream(eventType.name() + ".json");) {
+                String json = GSON.toJson(tree);
+                fileOutputStream.write(json.getBytes());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
 
     }
 }
