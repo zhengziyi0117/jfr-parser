@@ -12,6 +12,7 @@
         <module>with-signature</module>
         <module>without-signature</module>
         <module>async-profiler-convert</module>
+        <module>async-profiler-convert-pkg</module>
     </modules>
 
     <properties>
