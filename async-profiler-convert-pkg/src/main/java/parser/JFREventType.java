@@ -30,11 +30,13 @@ public enum JFREventType {
     THREAD_PARK(3),
     OBJECT_ALLOCATION_IN_NEW_TLAB(4),
     OBJECT_ALLOCATION_OUTSIDE_TLAB(5),
-    PROFILER_LIVE_OBJECT(6);
+    PROFILER_LIVE_OBJECT(6),
+    // LOCK is a combination of JAVA_MONITOR_ENTER and THREAD_PARK
+    LOCK(6);
 
     private final int code;
 
-    public boolean isLockSample() {
-        return JAVA_MONITOR_ENTER.equals(this) || THREAD_PARK.equals(this);
+    public static boolean isLockSample(JFREventType type) {
+        return LOCK.equals(type) || JAVA_MONITOR_ENTER.equals(type) || THREAD_PARK.equals(type);
     }
 }

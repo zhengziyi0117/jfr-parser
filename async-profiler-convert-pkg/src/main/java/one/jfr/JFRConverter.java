@@ -18,6 +18,7 @@ import static parser.Frame.TYPE_KERNEL;
 import static parser.Frame.TYPE_NATIVE;
 import static parser.JFREventType.EXECUTION_SAMPLE;
 import static parser.JFREventType.JAVA_MONITOR_ENTER;
+import static parser.JFREventType.LOCK;
 import static parser.JFREventType.OBJECT_ALLOCATION_IN_NEW_TLAB;
 import static parser.JFREventType.OBJECT_ALLOCATION_OUTSIDE_TLAB;
 import static parser.JFREventType.PROFILER_LIVE_OBJECT;
@@ -57,9 +58,7 @@ public abstract class JFRConverter extends Classifier {
                     agg = event2aggMap.computeIfAbsent(OBJECT_ALLOCATION_OUTSIDE_TLAB, JFRConverter::getEventAggregator);
                 }
             } else if (event instanceof ContendedLock) {
-                // todo use one agg
-                agg = event2aggMap.computeIfAbsent(JAVA_MONITOR_ENTER, JFRConverter::getEventAggregator);
-                agg = event2aggMap.computeIfAbsent(THREAD_PARK, JFRConverter::getEventAggregator);
+                agg = event2aggMap.computeIfAbsent(LOCK, JFRConverter::getEventAggregator);
             } else if (event instanceof LiveObject) {
                 agg = event2aggMap.computeIfAbsent(PROFILER_LIVE_OBJECT, JFRConverter::getEventAggregator);
             }
@@ -78,8 +77,7 @@ public abstract class JFRConverter extends Classifier {
                 return new EventAggregator(true, false);
             case OBJECT_ALLOCATION_IN_NEW_TLAB:
             case OBJECT_ALLOCATION_OUTSIDE_TLAB:
-            case JAVA_MONITOR_ENTER:
-            case PROFILER_LIVE_OBJECT:
+            case LOCK:
             case THREAD_PARK:
                 return new EventAggregator(true, true);
             default:

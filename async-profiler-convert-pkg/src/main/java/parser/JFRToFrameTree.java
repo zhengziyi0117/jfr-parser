@@ -60,7 +60,7 @@ public class JFRToFrameTree extends JFRConverter {
             agg.forEach(new EventAggregator.Visitor() {
                 final CallStack stack = new CallStack();
                 final double ticksToNanos = 1e9 / jfr.ticksPerSec;
-                final boolean scale = args.isTotal() && event.isLockSample() && ticksToNanos != 1.0;
+                final boolean scale = args.isTotal() && JFREventType.isLockSample(event) && ticksToNanos != 1.0;
 
                 @Override
                 public void visit(Event event, long value) {
