@@ -13,6 +13,7 @@
         <module>without-signature</module>
         <module>async-profiler-convert</module>
         <module>async-profiler-convert-pkg</module>
+        <module>pprof-parser</module>
     </modules>
 
     <properties>
