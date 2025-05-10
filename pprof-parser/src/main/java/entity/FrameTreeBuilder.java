@@ -68,8 +68,9 @@ public class FrameTreeBuilder {
         // 检测endpoint是否对的上
         if (endpoint != null) {
             boolean ok = false;
-            for (Long valueId : sample.getValueList()) {
-                if (endpoint.equals(this.profile.getStringTable(valueId.intValue()))) {
+            for (ProfileProto.Label label : sample.getLabelList()) {
+                if ("endpoint".equals(this.profile.getStringTable((int) label.getKey()))
+                        && endpoint.equals(this.profile.getStringTable((int) label.getStr()))) {
                     ok = true;
                     break;
                 }

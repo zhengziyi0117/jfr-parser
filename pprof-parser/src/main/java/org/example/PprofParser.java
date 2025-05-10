@@ -11,10 +11,10 @@ import java.io.InputStream;
 import java.util.zip.GZIPInputStream;
 
 public class PprofParser {
-    public static FrameTree parsePprofFile(String filePath) {
+    public static FrameTree parsePprofFile(String filePath, String endpoint) {
         try (InputStream fileStream = new FileInputStream(filePath); InputStream gzipStream = new GZIPInputStream(fileStream)) {
             ProfileProto.Profile profile = ProfileProto.Profile.parseFrom(gzipStream);
-            return new FrameTreeBuilder(profile, null).build();
+            return new FrameTreeBuilder(profile, endpoint).build();
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
